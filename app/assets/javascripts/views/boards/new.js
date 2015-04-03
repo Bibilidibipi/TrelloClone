@@ -1,0 +1,9 @@
+TrelloClone.Views.NewBoard = Backbone.View.extend({
+  template: JST['boards/new'],
+  tagName: 'form',
+
+  render: function() {
+    this.$el.html(this.template());
+    return this;
+  }
+});
