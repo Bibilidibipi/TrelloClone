@@ -6,7 +6,7 @@ TrelloClone.Collections.Boards = Backbone.Collection.extend({
     var boards = this;
     var board = this.get(id);
 
-    if(board !== undefined) {
+    if(board) {
       board.fetch();
     } else {
       var lists = new TrelloClone.Collections.Lists();

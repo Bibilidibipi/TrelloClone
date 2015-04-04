@@ -7,7 +7,7 @@ TrelloClone.Views.ListIndexItem = Backbone.View.extend({
   },
 
   events: {
-    'click .submit': 'showList'
+    // 'click .submit': 'showList'
   },
 
   showList: function (event) {

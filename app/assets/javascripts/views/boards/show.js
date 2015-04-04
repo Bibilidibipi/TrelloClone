@@ -6,7 +6,8 @@ TrelloClone.Views.ShowBoard = Backbone.CompositeView.extend({
   },
 
   events: {
-    'click .index': 'boardsIndex'
+    'click .index': 'boardsIndex',
+    'submit .new-list': 'newList'
   },
 
   render: function() {
@@ -28,5 +29,20 @@ TrelloClone.Views.ShowBoard = Backbone.CompositeView.extend({
   boardsIndex: function (event) {
     event.preventDefault();
     Backbone.history.navigate('', { trigger: true });
+  },
+
+  newList: function (event) {
+    event.preventDefault();
+    var $form = $(event.currentTarget);
+    var params = $form.serializeJSON();
+    var list = new TrelloClone.Models.List(params);
+    list.set("board_id", this.model.id);
+    list.save({}, {
+      success: function () {
+        $form.find('.to-clear').val('');
+        this.model.lists().add(list);
+        this.model.fetch();
+      }.bind(this)
+    });
   }
 });
