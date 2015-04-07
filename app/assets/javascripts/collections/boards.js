@@ -2,6 +2,10 @@ TrelloClone.Collections.Boards = Backbone.Collection.extend({
   model: TrelloClone.Models.Board,
   url: 'api/boards',
 
+  comparator: function (board) {
+    return -1 * board.get('created_at');
+  },
+
   getOrFetch: function(id) {
     var boards = this;
     var board = this.get(id);
@@ -9,8 +13,7 @@ TrelloClone.Collections.Boards = Backbone.Collection.extend({
     if(board) {
       board.fetch();
     } else {
-      var lists = new TrelloClone.Collections.Lists();
-      board = new TrelloClone.Models.Board({ id: id, collection: lists });
+      board = new TrelloClone.Models.Board({ id: id });
       board.fetch({
         success: function () {
           boards.add(board);

@@ -1,26 +1,39 @@
 TrelloClone.Views.ShowBoard = Backbone.CompositeView.extend({
   template: JST['boards/show'],
-
-  initialize: function () {
-    this.listenTo(this.model, 'sync', this.render);
-  },
+  tagName: 'div class="container-fluid"',
 
   events: {
     'click .index': 'boardsIndex',
-    'submit .new-list': 'newList'
+    'click .add-list': 'showNewListForm'
+  },
+
+  initialize: function () {
+    this.listenTo(this.model, 'sync add', this.render);
+  },
+
+  // CompositeView method overwritten to ease sorting (append changed to prepend)
+  attachSubview: function (selector, subview) {
+    this.$(selector).prepend(subview.$el);
+    // Bind events in case `subview` has previously been removed from
+    // DOM.
+    subview.delegateEvents();
+
+    if (subview.attachSubviews) {
+      subview.attachSubviews();
+    }
   },
 
   render: function() {
-    this.subviews('ul').forEach(function (indexItemView) {
+    this.subviews('div.lists').forEach(function (indexItemView) {
       indexItemView.remove();
-    }),
+    });
     this.$el.html(this.template({ board: this.model}));
 
     if(this.model.lists() === undefined) { return this; }
 
     this.model.lists().each(function (list) {
       var indexItemView = new TrelloClone.Views.ListIndexItem({ model: list });
-      this.addSubview('ul', indexItemView);
+      this.addSubview('div.lists', indexItemView);
     }.bind(this));
 
     return this;
@@ -31,18 +44,10 @@ TrelloClone.Views.ShowBoard = Backbone.CompositeView.extend({
     Backbone.history.navigate('', { trigger: true });
   },
 
-  newList: function (event) {
-    event.preventDefault();
-    var $form = $(event.currentTarget);
-    var params = $form.serializeJSON();
-    var list = new TrelloClone.Models.List(params);
-    list.set("board_id", this.model.id);
-    list.save({}, {
-      success: function () {
-        $form.find('.to-clear').val('');
-        this.model.lists().add(list);
-        this.model.fetch();
-      }.bind(this)
-    });
+  showNewListForm: function (event) {
+    var $subview = $(event.currentTarget);
+    $subview.remove();
+    var formView = new TrelloClone.Views.NewList({ board: this.model });
+    $('.lists').append(formView.render().$el);
   }
 });
